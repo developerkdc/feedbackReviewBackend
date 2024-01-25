@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 const questionsForProductSchema = new mongoose.Schema({
-    question: String,
+    question: { type: String },
     typeOf: {
         type: String,
         enum: {
