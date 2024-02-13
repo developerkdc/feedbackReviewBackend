@@ -15,7 +15,13 @@ mongoose
   .then(() => console.log("Database is connected"))
   .catch(() => console.log("Database is disconnected"));
 
-app.use(cors());
+  var corsOptions = {
+    origin: ["http://localhost:3001","https://feedback.kdcstaging.in"],
+    optionsSuccessStatus: 200,
+    credentials: true,
+  }
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use("/RatingAndReviews", RatingAndReviewsRouter);
