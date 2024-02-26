@@ -16,7 +16,8 @@ mongoose
   .catch(() => console.log("Database is disconnected"));
 
   var corsOptions = {
-    origin: ["http://localhost:3001","https://feedback.kdcstaging.in"],
+    // origin: ["http://localhost:3001","https://feedback.kdcstaging.in"],
+    origin: ["*"],
     optionsSuccessStatus: 200,
     credentials: true,
   }
