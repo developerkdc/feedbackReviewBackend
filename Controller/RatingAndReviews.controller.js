@@ -42,6 +42,9 @@ export const addUser = async (req, res) => {
           "user.contact": req.body.contact,
           "user.city": req.body.city,
           "user.feedback": req.body.feedback,
+          "user.gender": req.body.gender,
+          "user.dob": req.body.dob,
+          "user.profession": req.body.profession,
         },
       },
       { new: true }
