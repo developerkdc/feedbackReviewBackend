@@ -11,7 +11,11 @@ const questionsForProductSchema = new mongoose.Schema({
     options: {
         type: [{ type: String }],
         default: null
-    }
+    },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
+    deleted_at: { type: Date, default: null },
+
 });
 
 const questionsForProductModel = mongoose.model("questionsForProduct", questionsForProductSchema)
