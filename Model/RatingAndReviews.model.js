@@ -41,7 +41,9 @@ const RatingAndReviewsSchema = new mongoose.Schema({
       default: null,
     },
   },
-  created_at: { type: Date, default: Date.now() },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+  deleted_at: { type: Date, default: null },
 });
 
 // const RatingAndReviewsSchema = new mongoose.Schema({
@@ -92,8 +94,5 @@ const RatingAndReviewsSchema = new mongoose.Schema({
 //   }
 // });
 
-const RatingAndReviewsModel = mongoose.model(
-  "ratingandreviews",
-  RatingAndReviewsSchema
-);
+const RatingAndReviewsModel = mongoose.model("ratingandreviews", RatingAndReviewsSchema);
 export default RatingAndReviewsModel;

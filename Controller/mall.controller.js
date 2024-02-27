@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import mallModel from "../Model/mall.model.js"
 
 export const getMall = async (req,res)=>{
@@ -72,8 +73,7 @@ export const GetMall = async (req, res) => {
     const skip = (page - 1) * limit;
   
     const { sortField = "mall_name", sortOrder = "desc", search, id } = req.query;
-    // const sortField = req.query.sortField || "user_id";
-    // const sortOrder = req.query.sortOrder || "asc";
+
     if (id) {
       const mall = await mallModel.findById(id);
   
@@ -101,37 +101,14 @@ export const GetMall = async (req, res) => {
       searchQuery = {
         ...searchQuery,
         $or: [
-          // {
-          //   user_id: isNaN(parseInt(search)) ? null : parseInt(search),
-          // },
           { first_name: searchRegex },
           { last_name: searchRegex },
           { email_id: searchRegex },
           { mobile_no: searchRegex },
           { mall_name: searchRegex },
-          // ...(isNaN(parseInt(search))
-          //   ? [] // If not a valid number, don't include user_id conditions
-          //   : [{ user_id: parseInt(search) }]),
         ],
       };
     }
-  
-    //filter functionality
-    // const filter = {};
-    // if (role) filter["role_id"] = role;
-  
-    // if (start_date && end_date) {
-    //   let newStartDate = new Date(start_date).setHours(0, 0, 1);
-    //   let newEndDate = new Date(end_date).setHours(23, 59, 59);
-    //   filter["created_at"] = { $gte: newStartDate, $lte: newEndDate };
-    // } else if (start_date) {
-    //   let newStartDate = new Date(start_date).setHours(0, 0, 1);
-    //   filter["created_at"] = { $gte: newStartDate };
-    // } else if (end_date) {
-    //   let newEndDate = new Date(end_date).setHours(23, 59, 59);
-    //   filter["created_at"] = { $lte: newEndDate };
-    // }
-    // Fetching users
     const users = await mallModel
       .find({ ...searchQuery })
       .sort(sort)
@@ -150,5 +127,34 @@ export const GetMall = async (req, res) => {
       data: users,
       message: "Fetched successfully",
       totalPages: totalPages,
+    });
+  };
+
+  export const UpdateUser = async (req, res) => {
+    const mallId = req.params.id;
+    const updateData = req.body;
+    updateData.updated_at = Date.now();
+    if (!mongoose.Types.ObjectId.isValid(mallId)) {
+      return res.status(400).json({ status: false, message: "Invalid mall Id", data: null });
+    }
+  
+    // if (updateData.password) {
+    //   const hashedPassword = await bcrypt.hash(updateData.password, 10);
+    //   updateData.password = hashedPassword;
+    // }
+    updateData.updated_at = Date.now();
+  
+    const user = await mallModel.findByIdAndUpdate(mallId, { $set: updateData }, { new: true, runValidators: true });
+    if (!user) {
+      return res.status(404).json({
+        status: false,
+        message: "Mall not found.",
+      });
+    }
+  
+    res.status(200).json({
+      status: true,
+      data: user,
+      message: "Mall updated successfully",
     });
   };
