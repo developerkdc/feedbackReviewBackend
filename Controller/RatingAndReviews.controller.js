@@ -79,9 +79,15 @@ export const getRatingAndReviewsUser = async (req, res) => {
     }
     const getRNR = await RatingAndReviewsModel.find(match).sort({[sortField]:sortOrder}).skip((page - 1)*limit).limit(limit);
 
+    const totalDocuments = await RatingAndReviewsModel.countDocuments({
+      ...match,
+    });
+
+    const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json({
       status: "success",
-      RatingAndReviews: getRNR
+      RatingAndReviews: getRNR,
+      totalPages
     })
   } catch (error) {
     res.status(500).json({
