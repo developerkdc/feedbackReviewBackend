@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import mallModel from "../Model/mall.model.js";
+import jwt from "jsonwebtoken";
+
 
 export const getMall = async (req, res) => {
   try {
