@@ -28,6 +28,22 @@ const RatingAndReviewsSchema = new mongoose.Schema({
       type: String,
       default: null,
     },
+    gender: {
+      type: String,
+      default: null,
+    },
+    dob: {
+      type: Date,
+      default: null,
+    },
+    bill: {
+      type: String,
+      default: null,
+    },
+    profession: {
+      type: String,
+      default: null,
+    },
     contact: {
       type: String,
       default: null,
@@ -40,8 +56,14 @@ const RatingAndReviewsSchema = new mongoose.Schema({
       type: String,
       default: null,
     },
+    meta_data :{
+      type: mongoose.Schema.Types.Mixed,
+      default: {}
+    }
   },
-  created_at: { type: Date, default: Date.now() },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+  deleted_at: { type: Date, default: null },
 });
 
 // const RatingAndReviewsSchema = new mongoose.Schema({
@@ -92,8 +114,5 @@ const RatingAndReviewsSchema = new mongoose.Schema({
 //   }
 // });
 
-const RatingAndReviewsModel = mongoose.model(
-  "ratingandreviews",
-  RatingAndReviewsSchema
-);
+const RatingAndReviewsModel = mongoose.model("ratingandreviews", RatingAndReviewsSchema);
 export default RatingAndReviewsModel;

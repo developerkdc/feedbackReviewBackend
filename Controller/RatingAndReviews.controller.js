@@ -42,6 +42,9 @@ export const addUser = async (req, res) => {
           "user.contact": req.body.contact,
           "user.city": req.body.city,
           "user.feedback": req.body.feedback,
+          "user.gender": req.body.gender,
+          "user.dob": req.body.dob,
+          "user.profession": req.body.profession,
         },
       },
       { new: true }
@@ -58,46 +61,35 @@ export const addUser = async (req, res) => {
   }
 };
 
-// export const getRatingAndReviews = async (req,res)=>{
-//     try {
-//        let matchType = {
-//          "mall.mallId": new mongoose.Types.ObjectId(req.query.mallId),
-//        };
-//     //    if (req.params.mallId) {
-//     //      matchType["mall.mallId"] = new mongoose.Types.ObjectId(
-//     //        req.params.mallId
-//     //      );
-//     //    }
-//        if (req.query.type === "stars") {
-//          matchType = {...matchType,"questionAndAnswer.typeOf": { $eq: req.query.type } };
-//        } else if (req.query.type === "all") {
-//          matchType = {
-//            "mall.mallId": new mongoose.Types.ObjectId(req.query.mallId),
-//          };
-//        } else {
-//          matchType = {...matchType,"questionAndAnswer.typeOf": { $ne: "stars" } };
-//        }
+export const getRatingAndReviewsUser = async (req, res) => {
+  try {
 
-//         const getRNR = await RatingAndReviewsModel.aggregate([
-//             {
-//                 $unwind:"$questionAndAnswer"
-//             },
-//             {
-//                 $match:matchType
-//             }
-//         ]);
-        
-//         res.status(200).json({
-//             status:"success",
-//             RatingAndReviews:getRNR
-//         })
-//     } catch (error) {
-//         res.status(500).json({
-//             status:"failed",
-//             message:error.message
-//         })
-//     }
-// }
+    const { search,sortOrder = "desc",sortField = "created_at"} = req.query;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const match = {};
+    if(search){
+      match.$or = [
+        { "user.name": { $regex: new RegExp(search, "i") } },
+        { "user.email": { $regex: new RegExp(search, "i") } },
+        { "user.city": { $regex: new RegExp(search, "i") } },
+        { "user.contact": { $regex: new RegExp(search, "i") } },
+        { "mall.name": { $regex: new RegExp(search, "i") } }
+      ];
+    }
+    const getRNR = await RatingAndReviewsModel.find(match).sort({[sortField]:sortOrder}).skip((page - 1)*limit).limit(limit);
+
+    res.status(200).json({
+      status: "success",
+      RatingAndReviews: getRNR
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "failed",
+      message: error.message
+    })
+  }
+}
 
 
 // export const getRatingAndReviews = async (req, res) => {
@@ -109,28 +101,28 @@ export const addUser = async (req, res) => {
 //         const feedbackData = await RatingAndReviewsModel.find({
 //           "mall.mallId": id,
 //         });
-      
+
 //         const result = {};
-      
+
 //         for (const feedback of feedbackData) {
 //           for (const qa of feedback.questionAndAnswer) {
 //             const questionInfo = await questionsForProductModel.findById(qa.questionId);
-      
+
 //             let optionIndexMap;
-      
+
 //             if (!result[qa.questionId]) {
 //               // Create a map to store the index of each option in questionInfo.options
 //               optionIndexMap = new Map();
 //               questionInfo.options.forEach((option, index) => {
 //                 optionIndexMap.set(option, index);
 //               });
-      
+
 //               // Initialize the option counts for each question in the same sequence as questionInfo.options
 //               const optionCounts = {};
 //               questionInfo.options.forEach((option) => {
 //                 optionCounts[option] = 0;
 //               });
-      
+
 //               result[qa.questionId] = {
 //                 question: questionInfo.question,
 //                 typeOf: questionInfo.typeOf,
@@ -145,15 +137,15 @@ export const addUser = async (req, res) => {
 //                 optionIndexMap.set(option, index);
 //               });
 //             }
-      
+
 //             result[qa.questionId].totalAnswers += 1;
-      
+
 //             // Update the option counts in the correct order
 //             qa.answer.forEach((option) => {
 //               const index = optionIndexMap.get(option);
 //               result[qa.questionId].optionCounts[option] += 1;
 //             });
-      
+
 //             result[qa.questionId].users.push({
 //               name: feedback.user.name,
 //               email: feedback.user.email,
@@ -163,13 +155,13 @@ export const addUser = async (req, res) => {
 //             });
 //           }
 //         }
-      
+
 //         res.json(result);
 //       } catch (error) {
 //         console.error(error);
 //         res.status(500).json({ error: "Internal Server Error" });
 //       }
-       
+
 // };
 
 export const getRatingAndReviews = async (req, res) => {

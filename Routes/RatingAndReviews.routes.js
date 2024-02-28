@@ -1,5 +1,5 @@
 import express from "express";
-import { addRatingAndReviews, addUser, getAllUserForQuestion, getRatingAndReviews } from "../Controller/RatingAndReviews.controller.js";
+import { addRatingAndReviews, addUser, getAllUserForQuestion, getRatingAndReviews, getRatingAndReviewsUser } from "../Controller/RatingAndReviews.controller.js";
 const RatingAndReviewsRouter = express.Router();
 
 RatingAndReviewsRouter.route('/')
@@ -10,6 +10,8 @@ RatingAndReviewsRouter.route('/getUserForQuestion')
     
 RatingAndReviewsRouter.route('/addUser/:id')
     .patch(addUser)
+
+RatingAndReviewsRouter.get("/user",getRatingAndReviewsUser)
 
 export default RatingAndReviewsRouter
 
