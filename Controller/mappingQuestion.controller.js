@@ -109,18 +109,18 @@ export const deleteMappingQuestions = async (req, res) => {
   }
 };
 
-export const mappedQuestionsList  = async (req, res) => {
+export const mappedQuestionsList = async (req, res) => {
   try {
     const mappedquestion = await mappingQuestionModel.find({});
     console.log(mappedquestion);
-     res.status(200).json({
-       status: "success",
-       mappedquestion,
-     });
+    res.status(200).json({
+      status: "success",
+      mappedquestion,
+    });
   } catch (error) {
     res.status(500).json({
       status: "failed",
       message: error.message,
     });
   }
-}
+};

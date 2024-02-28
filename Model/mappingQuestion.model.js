@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const mappingQuestionSchema = new mongoose.Schema({
     mallId:{
         type:mongoose.Schema.Types.ObjectId,
-        required:[true,"mallId is required"]
+        required:[true,"mallId is required"],
+        ref:"mall"
     },
     questionId:{
         type:mongoose.Schema.Types.ObjectId,
