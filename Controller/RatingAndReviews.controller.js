@@ -33,6 +33,13 @@ export const addRatingAndReviews = async (req, res) => {
 };
 export const addUser = async (req, res) => {
   try {
+    const files = req.files;
+    let imageName=null;
+    
+    if (files && Object.keys(files).length > 0) {
+      imageName = files.bill_image[0].filename;
+    }
+
     const addRNRUser = await RatingAndReviewsModel.findByIdAndUpdate(
       { _id: req.params.id },
       {
@@ -45,6 +52,7 @@ export const addUser = async (req, res) => {
           "user.gender": req.body.gender,
           "user.dob": req.body.dob,
           "user.profession": req.body.profession,
+          "user.bill": imageName,
         },
       },
       { new: true }
