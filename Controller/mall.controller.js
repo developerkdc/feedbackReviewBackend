@@ -126,13 +126,13 @@ export const GetMall = async (req, res) => {
     const totalDocuments = await mallModel.countDocuments({
       ...searchQuery,
     });
-    const totalPages = Math.ceil(totalDocuments / limit);
+    // const totalPages = Math.ceil(totalDocuments / limit);
 
     return res.status(200).json({
       status: true,
       data: users,
       message: "Fetched successfully",
-      totalPages: totalPages,
+      totalPages: totalDocuments,
     });
   } catch (error) {
     return res.status(500).json({
