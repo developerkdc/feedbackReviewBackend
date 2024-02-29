@@ -34,8 +34,8 @@ export const addRatingAndReviews = async (req, res) => {
 export const addUser = async (req, res) => {
   try {
     const files = req.files;
-    let imageName=null;
-    
+    let imageName = null;
+
     if (files && Object.keys(files).length > 0) {
       imageName = files.bill_image[0].filename;
     }
@@ -71,40 +71,48 @@ export const addUser = async (req, res) => {
 
 export const getRatingAndReviewsUser = async (req, res) => {
   try {
-
-    const { search,sortOrder = "desc",sortField = "created_at"} = req.query;
+    const { search, sortOrder = "desc", sortField = "created_at", mall_id } = req.query;
+    console.log(sortField,"hbdgn");
+    console.log(req.query,"nijdijs");
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const match = {};
-    if(search){
+    if (search) {
       match.$or = [
         { "user.name": { $regex: new RegExp(search, "i") } },
         { "user.email": { $regex: new RegExp(search, "i") } },
         { "user.city": { $regex: new RegExp(search, "i") } },
         { "user.contact": { $regex: new RegExp(search, "i") } },
-        { "mall.name": { $regex: new RegExp(search, "i") } }
+        { "mall.name": { $regex: new RegExp(search, "i") } },
       ];
     }
-    const getRNR = await RatingAndReviewsModel.find(match).sort({[sortField]:sortOrder}).skip((page - 1)*limit).limit(limit);
+    const filter = {};
+    if (mall_id) filter["mall.mallId"] = mall_id;
+
+    const getRNR = await RatingAndReviewsModel.find({...match,...filter})
+      .sort({ [sortField || 'created_at']: sortOrder })
+      .collation({ locale: "en", caseLevel: true })
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     const totalDocuments = await RatingAndReviewsModel.countDocuments({
       ...match,
+      ...filter,
     });
 
-    const totalPages = Math.ceil(totalDocuments / limit);
+    // const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json({
       status: "success",
       RatingAndReviews: getRNR,
-      totalPages
-    })
+      totalPages:totalDocuments,
+    });
   } catch (error) {
     res.status(500).json({
       status: "failed",
-      message: error.message
-    })
+      message: error.message,
+    });
   }
-}
-
+};
 
 // export const getRatingAndReviews = async (req, res) => {
 //     try {
@@ -180,6 +188,7 @@ export const getRatingAndReviewsUser = async (req, res) => {
 
 export const getRatingAndReviews = async (req, res) => {
   try {
+    console.log("hvbsdfbb");
     const { id } = req.query;
 
     const result = await RatingAndReviewsModel.aggregate([
@@ -253,31 +262,64 @@ export const getRatingAndReviews = async (req, res) => {
       },
     ]);
 
-    console.log("Raw Result:", result);
+    // console.log("Raw Result:", result);
+    // console.log("Result Before Match:", result);
+
+    // const resultAfterMatch = result.filter(item => item.optionCounts.every(answer => answer !== undefined && answer !== ''));
+
+    // console.log("Result After Match:", resultAfterMatch);
 
     // Transform result into a more structured format
+    // const formattedResult = result.reduce((acc, item) => {
+    //   acc[item.questionId] = {
+    //     question: item.question,
+    //     typeOf: item.typeOf,
+    //     options: item.options,
+    //     totalAnswers: item.totalAnswers,
+    //     optionCounts: item.optionCounts.reduce((counts, option) => {
+    //       if (Array.isArray(option)) {
+    //         option.forEach((individualOption) => {
+    //           counts[individualOption] = (counts[individualOption] || 0) + 1;
+    //         });
+    //       } else {
+    //         counts[option] = (counts[option] || 0) + 1;
+    //       }
+    //       return counts;
+    //     }, {}),
+    //     users: item.users,
+    //   };
+    //   return acc;
+    // }, {});
+
+    // console.log("Formatted Result:", formattedResult);
+
+    // res.json(formattedResult);
     const formattedResult = result.reduce((acc, item) => {
+    
       acc[item.questionId] = {
         question: item.question,
         typeOf: item.typeOf,
         options: item.options,
         totalAnswers: item.totalAnswers,
         optionCounts: item.optionCounts.reduce((counts, option) => {
-          if (Array.isArray(option)) {
-            option.forEach((individualOption) => {
-              counts[individualOption] = (counts[individualOption] || 0) + 1;
-            });
-          } else {
-            counts[option] = (counts[option] || 0) + 1;
+          if (option !== "") {
+            if (Array.isArray(option)) {
+              option.forEach((individualOption) => {
+                counts[individualOption] = (counts[individualOption] || 0) + 1;
+              });
+            } else {
+              counts[option] = (counts[option] || 0) + 1;
+            }
           }
           return counts;
-        }, {}),
+        }, {}), // Initialize optionCounts as an empty object
         users: item.users,
       };
+    
       return acc;
     }, {});
 
-    console.log("Formatted Result:", formattedResult);
+    // console.log("Formatted Result:", formattedResult);
 
     res.json(formattedResult);
   } catch (error) {
@@ -285,8 +327,6 @@ export const getRatingAndReviews = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-
 
 // app.get('/mallQuestions', async (req, res) => {
 //     try {
@@ -372,44 +412,36 @@ export const getRatingAndReviews = async (req, res) => {
 //     }
 //   ]);
 
-
 export const getAllUserForQuestion = async (req, res, next) => {
   try {
-
     const { mallId, questionId } = req.query;
 
     const data = await RatingAndReviewsModel.find({
       "mall.mallId": mallId,
-      "questionAndAnswer.questionId": questionId
+      "questionAndAnswer.questionId": questionId,
     });
 
     // Extracting the desired information from the result
-    const extractedData = data.map(entry => {
+    const extractedData = data.map((entry) => {
       const userAndMall = {
         user: entry.user,
         mall: entry.mall,
       };
 
       // Find the specific object from the questionAndAnswer array
-      const questionAndAnswer = entry.questionAndAnswer.find(
-        qa => qa.questionId.toString() === questionId
-      );
+      const questionAndAnswer = entry.questionAndAnswer.find((qa) => qa.questionId.toString() === questionId);
 
-      return questionAndAnswer
-        ? { ...userAndMall, questionAndAnswer }
-        : null;
+      return questionAndAnswer ? { ...userAndMall, questionAndAnswer } : null;
     });
 
     // Filter out null entries (where the questionAndAnswer wasn't found)
-    const filteredData = extractedData.filter(entry => entry !== null);
+    const filteredData = extractedData.filter((entry) => entry !== null);
 
     // Do something with the extracted data, such as sending it in the response
     return res.status(200).json(filteredData);
   } catch (error) {
     // Handle errors appropriately
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-
