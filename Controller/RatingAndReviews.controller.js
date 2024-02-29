@@ -19,7 +19,15 @@ import questionsForProductModel from "../Model/QuestionFrame.model.js";
 // }
 export const addRatingAndReviews = async (req, res) => {
   try {
-    const addRNR = await RatingAndReviewsModel.create(req.body);
+    const starQuestions = req.body.questionAndAnswer.filter((question) => question.typeOf === "stars");
+    let averageRating = 0;
+    if (starQuestions && starQuestions.length) {
+      // Calculate the sum of star ratings
+      const sumOfStars = starQuestions.reduce((sum, question) => sum + parseInt(question.answer), 0);
+      // Calculate the average star rating
+      averageRating = parseFloat(((sumOfStars * 5) / (starQuestions.length * 5)).toFixed(1));
+    }
+    const addRNR = await RatingAndReviewsModel.create({ ...req.body, ratingAvg: averageRating });
     res.status(200).json({
       status: "created",
       RatingAndReviews: addRNR,
@@ -72,8 +80,7 @@ export const addUser = async (req, res) => {
 export const getRatingAndReviewsUser = async (req, res) => {
   try {
     const { search, sortOrder = "desc", sortField = "created_at", mall_id } = req.query;
-    console.log(sortField,"hbdgn");
-    console.log(req.query,"nijdijs");
+   
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const match = {};
@@ -88,9 +95,12 @@ export const getRatingAndReviewsUser = async (req, res) => {
     }
     const filter = {};
     if (mall_id) filter["mall.mallId"] = mall_id;
-
-    const getRNR = await RatingAndReviewsModel.find({...match,...filter})
-      .sort({ [sortField || 'created_at']: sortOrder })
+    console.log(sortOrder,sortField);
+    const sort = {};
+    if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
+    console.log(sort);
+    const getRNR = await RatingAndReviewsModel.find({ ...match, ...filter })
+      .sort(sort)
       .collation({ locale: "en", caseLevel: true })
       .skip((page - 1) * limit)
       .limit(limit);
@@ -104,7 +114,7 @@ export const getRatingAndReviewsUser = async (req, res) => {
     res.status(200).json({
       status: "success",
       RatingAndReviews: getRNR,
-      totalPages:totalDocuments,
+      totalPages: totalDocuments,
     });
   } catch (error) {
     res.status(500).json({
@@ -295,7 +305,6 @@ export const getRatingAndReviews = async (req, res) => {
 
     // res.json(formattedResult);
     const formattedResult = result.reduce((acc, item) => {
-    
       acc[item.questionId] = {
         question: item.question,
         typeOf: item.typeOf,
@@ -315,7 +324,7 @@ export const getRatingAndReviews = async (req, res) => {
         }, {}), // Initialize optionCounts as an empty object
         users: item.users,
       };
-    
+
       return acc;
     }, {});
 

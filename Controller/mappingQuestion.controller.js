@@ -4,9 +4,18 @@ import mappingQuestionModel from "../Model/mappingQuestion.model.js";
 export const addMappingQuestions = async (req, res) => {
   try {
     const { mallId, questionId } = req.body;
-
+    console.log(mallId, questionId, "added");
     if (!mallId.length || !questionId) throw new Error("No mapping");
-
+    let alreadymapped = await mappingQuestionModel.findOne({
+      $and: [{ questionId: questionId }, { mallId: mallId }],
+    });
+    console.log(alreadymapped);
+    if (alreadymapped) {
+      return res.status(409).json({
+        status: "failed",
+        message: "This question is already mapped to this mall",
+      });
+    }
     const addMappingQuestions = await mappingQuestionModel.insertMany(
       mallId.map((mallId) => {
         return {
@@ -93,6 +102,7 @@ export const getMappingQuestions = async (req, res) => {
 export const deleteMappingQuestions = async (req, res) => {
   try {
     const { mallId, questionId } = req.params;
+    console.log(mallId, questionId, "deleted");
     const deleteMappingQuestions = await mappingQuestionModel.deleteOne({
       mallId: mallId,
       questionId: questionId,
