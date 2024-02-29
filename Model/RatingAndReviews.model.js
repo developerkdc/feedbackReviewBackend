@@ -19,6 +19,10 @@ const RatingAndReviewsSchema = new mongoose.Schema({
     ],
     default: null,
   },
+  ratingAvg:{
+    type: Number,
+    default:0
+  },
   user: {
     name: {
       type: String,
