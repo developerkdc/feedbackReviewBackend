@@ -32,7 +32,7 @@ export const getQuestion = async (req,res)=>{
 
 export const getAllQuestion = async (req,res)=>{
     try {
-        const getAllQuestion = await await questionsForProductModel.find();
+        const getAllQuestion = await questionsForProductModel.find();
         return res.status(200).json({
             status:"success",
             question:getAllQuestion
