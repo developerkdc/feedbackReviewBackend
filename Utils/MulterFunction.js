@@ -12,7 +12,8 @@ export const MulterFunction = (dist) => {
       cb(null, dist);
     },
     filename: function (req, file, cb) {
-      cb(null, `${Date.now()}-${file.originalname}`);
+      const sanitizedFileName = `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
+      cb(null, sanitizedFileName);
     },
   });
   const upload = multer({ storage: storage });
