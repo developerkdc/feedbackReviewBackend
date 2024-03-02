@@ -12,7 +12,11 @@ const RatingAndReviewsRouter = express.Router();
 RatingAndReviewsRouter.route("/").post(addRatingAndReviews).get(getRatingAndReviews);
 RatingAndReviewsRouter.route("/getUserForQuestion").get(getAllUserForQuestion);
 
-RatingAndReviewsRouter.route("/addUser/:id").patch(MulterFunction("./public").fields([{ name: "bill_image", maxCount: 1 }]), addUser);
+// RatingAndReviewsRouter.route("/addUser/:id").patch(MulterFunction("./public").fields([{ name: "bill_image", maxCount: 1 }]), addUser);
+RatingAndReviewsRouter.route("/addUser/:id")
+  .patch(MulterFunction("./public"), (req, res) => addUser(req, res, req.cloudinaryUrl));
+
+
 
 RatingAndReviewsRouter.get("/user", getRatingAndReviewsUser);
 
