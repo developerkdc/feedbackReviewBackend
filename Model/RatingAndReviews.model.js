@@ -27,14 +27,17 @@ const RatingAndReviewsSchema = new mongoose.Schema({
     name: {
       type: String,
       default: null,
+      trim: true,
     },
     email: {
       type: String,
       default: null,
+      trim: true,
     },
     gender: {
       type: String,
       default: null,
+      trim: true,
     },
     dob: {
       type: Date,
@@ -47,6 +50,7 @@ const RatingAndReviewsSchema = new mongoose.Schema({
     profession: {
       type: String,
       default: null,
+      trim: true,
     },
     contact: {
       type: String,
@@ -55,6 +59,7 @@ const RatingAndReviewsSchema = new mongoose.Schema({
     city: {
       type: String,
       default: null,
+      trim: true,
     },
     feedback: {
       type: String,
