@@ -39,7 +39,7 @@ export const addRatingAndReviews = async (req, res) => {
     });
   }
 };
-export const addUser = async (req, res,cloudinaryUrl) => {
+export const addUser = async (req, res, cloudinaryUrl) => {
   try {
     // const files = req.files;
     // let imageName = null;
@@ -47,7 +47,10 @@ export const addUser = async (req, res,cloudinaryUrl) => {
     // if (files && Object.keys(files).length > 0) {
     //   imageName = files.bill_image[0].filename;
     // }
-
+    let metaData = {};
+    if (req.body.meta_data) {
+      metaData = JSON.parse(req.body.meta_data) || {};
+    }
     const addRNRUser = await RatingAndReviewsModel.findByIdAndUpdate(
       { _id: req.params.id },
       {
@@ -61,6 +64,7 @@ export const addUser = async (req, res,cloudinaryUrl) => {
           "user.dob": req.body.dob,
           "user.profession": req.body.profession,
           "user.bill": cloudinaryUrl || [],
+          meta_data: metaData,
         },
       },
       { new: true }
@@ -80,7 +84,7 @@ export const addUser = async (req, res,cloudinaryUrl) => {
 export const getRatingAndReviewsUser = async (req, res) => {
   try {
     const { search, sortOrder = "desc", sortField = "created_at", mall_id } = req.query;
-   
+
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const match = {};
@@ -91,11 +95,14 @@ export const getRatingAndReviewsUser = async (req, res) => {
         { "user.city": { $regex: new RegExp(search, "i") } },
         { "user.contact": { $regex: new RegExp(search, "i") } },
         { "mall.name": { $regex: new RegExp(search, "i") } },
+        { "user.profession": { $regex: new RegExp(search, "i") } },
+        { "user.gender": { $regex: new RegExp(search, "i") } },
+        { "user.contact": { $regex: new RegExp(search, "i") } },
       ];
     }
     const filter = {};
     if (mall_id) filter["mall.mallId"] = mall_id;
-    console.log(sortOrder,sortField);
+    console.log(sortOrder, sortField);
     const sort = {};
     if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
     console.log(sort);

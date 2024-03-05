@@ -189,7 +189,9 @@ export const LoginUser = async (req, res) => {
       return res.status(401).json({ message: "User not found with this email Id." });
     }
     // const passwordMatch = await bcrypt.compare(password, mall.password);
-
+    if (!mall.status) {
+      return res.status(401).json({ message: "Account has been suspended." });
+    }
     if (!(password === mall.password)) {
       return res.status(401).json({ message: "Invalid Password.", status: false });
     }
