@@ -29,12 +29,12 @@ export const addRatingAndReviews = async (req, res) => {
     }
     const addRNR = await RatingAndReviewsModel.create({ ...req.body, ratingAvg: averageRating });
     res.status(200).json({
-      status: "created",
+      status: true,
       RatingAndReviews: addRNR,
     });
   } catch (error) {
     res.status(500).json({
-      status: "failed",
+      status: false,
       message: error.message,
     });
   }
@@ -70,12 +70,12 @@ export const addUser = async (req, res, cloudinaryUrl) => {
       { new: true }
     );
     res.status(200).json({
-      status: "created",
+      status: true,
       RatingAndReviews: addRNRUser,
     });
   } catch (error) {
     res.status(500).json({
-      status: "failed",
+      status:false,
       message: error.message,
     });
   }
