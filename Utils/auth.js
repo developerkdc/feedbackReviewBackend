@@ -3,7 +3,7 @@ import mallModel from "../Model/mall.model.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.headers.token;
+    const token = req.headers.Authorization;
     if (!token) {
       //   return next(new ApiError("Token not provided.", 401));
       return res.status(401).json({ message: "Token not provided." });
